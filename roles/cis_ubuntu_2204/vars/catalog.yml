@@ -44,4 +44,4 @@ controls:
       - "1.1"
       - "1.1.2"
       - "1.1.2.1"
-    file: "1_initial_setup/1_1_filesystem/1_1_2_configure_filesystem_partitions/1_1_2_1_configure_tmp/1_1_2_1_1_ensure_tmp_is_tmpfs_or_separate_partition.yml"
+    file: "controls/1_initial_setup/1_1_filesystem/1_1_2_configure_filesystem_partitions/1_1_2_1_configure_tmp/1_1_2_1_1_ensure_tmp_is_tmpfs_or_separate_partition.yml"

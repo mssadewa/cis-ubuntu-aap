@@ -1,0 +1,170 @@
+---
+# CIS Ubuntu 22.04
+# 1.1.2.1.1 Ensure /tmp is tmpfs or a separate partition
+
+- name: "1.1.2.1.1 | Audit | Check /tmp mount"
+  ansible.builtin.command:
+    argv:
+      - findmnt
+      - --raw
+      - --noheadings
+      - --output
+      - TARGET,FSTYPE,MAJ:MIN
+      - --target
+      - /tmp
+  register: cis_tmp_mount
+  changed_when: false
+  failed_when: false
+
+- name: "1.1.2.1.1 | Audit | Check root filesystem mount"
+  ansible.builtin.command:
+    argv:
+      - findmnt
+      - --raw
+      - --noheadings
+      - --output
+      - TARGET,FSTYPE,MAJ:MIN
+      - --target
+      - /
+  register: cis_root_mount
+  changed_when: false
+  failed_when: false
+
+- name: "1.1.2.1.1 | Audit | Parse mount information"
+  ansible.builtin.set_fact:
+    cis_tmp_mount_fields: "{{ cis_tmp_mount.stdout | trim | regex_findall('\\S+') }}"
+    cis_root_mount_fields: "{{ cis_root_mount.stdout | trim | regex_findall('\\S+') }}"
+
+- name: "1.1.2.1.1 | Audit | Determine compliance"
+  ansible.builtin.set_fact:
+    cis_tmp_is_compliant: >-
+      {{
+        cis_tmp_mount.rc == 0
+        and cis_root_mount.rc == 0
+        and cis_tmp_mount_fields | length == 3
+        and cis_root_mount_fields | length == 3
+        and cis_tmp_mount_fields[0] == '/tmp'
+        and (
+          cis_tmp_mount_fields[1] == 'tmpfs'
+          or cis_tmp_mount_fields[2] != cis_root_mount_fields[2]
+        )
+      }}
+
+- name: "1.1.2.1.1 | Audit | Display result"
+  ansible.builtin.debug:
+    msg:
+      - "Control ID: 1.1.2.1.1"
+      - "Description: Ensure /tmp is tmpfs or a separate partition"
+      - "Mount information: {{ cis_tmp_mount.stdout | default('Unavailable') }}"
+      - "Root filesystem: {{ cis_root_mount.stdout | default('Unavailable') }}"
+      - "Result: {{ 'PASS' if cis_tmp_is_compliant else 'FAIL' }}"
+
+# REMEDIATION
+
+- name: "1.1.2.1.1 | Remediation | Protect existing /tmp mount"
+  ansible.builtin.assert:
+    that:
+      - >-
+        cis_tmp_mount_fields | length == 0
+        or cis_tmp_mount_fields[0] != '/tmp'
+    fail_msg: >-
+      /tmp is already a separate mount but did not pass the audit.
+      Automatic remediation is stopped to avoid overwriting an
+      existing mount configuration. Review it manually.
+  when:
+    - cis_remediate | bool
+    - not cis_tmp_is_compliant
+
+- name: "1.1.2.1.1 | Remediation | Configure tmpfs in fstab"
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^\S+\s+/tmp\s+\S+'
+    line: "tmpfs /tmp tmpfs defaults 0 0"
+    state: present
+    backup: true
+  when:
+    - cis_remediate | bool
+    - not cis_tmp_is_compliant
+
+- name: "1.1.2.1.1 | Remediation | Mount /tmp"
+  ansible.builtin.command:
+    argv:
+      - mount
+      - /tmp
+  when:
+    - cis_remediate | bool
+    - not cis_tmp_is_compliant
+  register: cis_tmp_remediation_mount
+  changed_when: true
+
+# POST-REMEDIATION ASSESSMENT
+
+- name: "1.1.2.1.1 | Post-audit | Check /tmp mount"
+  ansible.builtin.command:
+    argv:
+      - findmnt
+      - --raw
+      - --noheadings
+      - --output
+      - TARGET,FSTYPE,MAJ:MIN
+      - --target
+      - /tmp
+  register: cis_tmp_final_mount
+  changed_when: false
+  failed_when: false
+  when:
+    - cis_remediate | bool
+    - not cis_tmp_is_compliant
+
+- name: "1.1.2.1.1 | Post-audit | Parse final mount information"
+  ansible.builtin.set_fact:
+    cis_tmp_final_fields: "{{ cis_tmp_final_mount.stdout | trim | regex_findall('\\S+') }}"
+  when:
+    - cis_remediate | bool
+    - not cis_tmp_is_compliant
+
+- name: "1.1.2.1.1 | Post-audit | Determine final compliance"
+  ansible.builtin.set_fact:
+    cis_tmp_final_compliant: >-
+      {{
+        cis_tmp_final_mount.rc == 0
+        and cis_tmp_final_fields | length == 3
+        and cis_root_mount_fields | length == 3
+        and cis_tmp_final_fields[0] == '/tmp'
+        and (
+          cis_tmp_final_fields[1] == 'tmpfs'
+          or cis_tmp_final_fields[2] != cis_root_mount_fields[2]
+        )
+      }}
+  when:
+    - cis_remediate | bool
+    - not cis_tmp_is_compliant
+
+# RESULT COLLECTION
+
+- name: "1.1.2.1.1 | Record assessment result"
+  ansible.builtin.set_fact:
+    cis_results: >-
+      {{
+        cis_results + [{
+          'id': '1.1.2.1.1',
+          'description': 'Ensure /tmp is tmpfs or a separate partition',
+          'status': (
+            'PASS'
+            if (
+              cis_tmp_final_compliant
+              | default(cis_tmp_is_compliant)
+              | bool
+            )
+            else 'FAIL'
+          ),
+          'remediation_enabled': cis_remediate | bool
+        }]
+      }}
+
+- name: "1.1.2.1.1 | Display final result"
+  ansible.builtin.debug:
+    msg:
+      - "Control ID: 1.1.2.1.1"
+      - "Final status: {{ cis_results[-1].status }}"
+      - "Remediation enabled: {{ cis_remediate | bool }}"
