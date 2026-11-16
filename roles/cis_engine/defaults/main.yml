@@ -23,3 +23,8 @@ cis_exceptions: []
 # Internal execution variables
 cis_selected_controls: []
 cis_results: []
+
+# Temporary testing mode:
+# true  = select and display controls only
+# false = execute selected control files
+cis_selection_only: false

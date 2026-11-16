@@ -14,5 +14,9 @@
 - name: Select CIS controls dynamically
   ansible.builtin.include_tasks: select_controls.yml
 
+# - name: Execute selected CIS controls
+#   ansible.builtin.include_tasks: execute_controls.yml
+
 - name: Execute selected CIS controls
   ansible.builtin.include_tasks: execute_controls.yml
+  when: not (cis_selection_only | bool)
