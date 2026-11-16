@@ -1,0 +1,7 @@
+---
+benchmark:
+  name: "CIS Ubuntu Linux 24.04 LTS"
+  version: "2.0.0"
+  release: "24.04"
+
+controls: []

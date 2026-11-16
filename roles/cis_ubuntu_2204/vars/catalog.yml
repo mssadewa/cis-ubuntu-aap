@@ -1,0 +1,33 @@
+---
+benchmark:
+  name: "CIS Ubuntu Linux 22.04 LTS"
+  version: "3.0.0"
+  release: "22.04"
+
+controls:
+  - id: "1.1.1.1"
+    section: "1"
+    subsection: "1.1"
+    control_group: "1.1.1"
+    description: "Ensure cramfs kernel module is not available"
+    file: "1_initial_setup/1_1_filesystem/1_1_1_1_ensure_cramfs_is_not_available.yml"
+    automated: true
+    remediation_supported: true
+
+  - id: "1.1.1.2"
+    section: "1"
+    subsection: "1.1"
+    control_group: "1.1.1"
+    description: "Ensure freevxfs kernel module is not available"
+    file: "1_initial_setup/1_1_filesystem/1_1_1_2_ensure_freevxfs_is_not_available.yml"
+    automated: true
+    remediation_supported: true
+
+  - id: "1.1.1.5"
+    section: "1"
+    subsection: "1.1"
+    control_group: "1.1.1"
+    description: "Ensure jffs2 kernel module is not available"
+    file: "1_initial_setup/1_1_filesystem/1_1_1_5_ensure_jffs2_is_not_available.yml"
+    automated: true
+    remediation_supported: true

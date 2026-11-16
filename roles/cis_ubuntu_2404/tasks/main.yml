@@ -10,11 +10,24 @@
       Detected {{ ansible_distribution }}
       {{ ansible_distribution_version }}.
 
-- name: Initialize Ubuntu 24.04 benchmark metadata
+- name: Load Ubuntu 24.04 CIS catalog
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/catalog.yml"
+    name: cis_catalog
+
+- name: Validate benchmark catalog version
+  ansible.builtin.assert:
+    that:
+      - cis_catalog.benchmark.version == "2.0.0"
+      - cis_catalog.benchmark.release == "24.04"
+    fail_msg: "Invalid Ubuntu 24.04 CIS catalog."
+
+- name: Initialize benchmark execution variables
   ansible.builtin.set_fact:
-    cis_benchmark_name: "CIS Ubuntu Linux 24.04 LTS"
-    cis_benchmark_version: "2.0.0"
-    cis_benchmark_release: "24.04"
+    cis_benchmark_name: "{{ cis_catalog.benchmark.name }}"
+    cis_benchmark_version: "{{ cis_catalog.benchmark.version }}"
+    cis_benchmark_release: "{{ cis_catalog.benchmark.release }}"
+    cis_benchmark_role_path: "{{ role_path }}"
 
 - name: Execute shared CIS engine
   ansible.builtin.include_role:
