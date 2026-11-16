@@ -1,0 +1,14 @@
+---
+- name: CIS Benchmark Assessment - Ubuntu 22.04
+  hosts: ubuntu_2204
+  become: true
+  gather_facts: true
+
+  vars:
+    cis_benchmark_name: "CIS Ubuntu Linux 22.04 LTS"
+    cis_benchmark_version: "3.0.0"
+    cis_benchmark_os: "ubuntu"
+    cis_benchmark_release: "22.04"
+
+  roles:
+    - cis_ubuntu_2204

@@ -1,0 +1,14 @@
+---
+- name: CIS Benchmark Assessment - Ubuntu 24.04
+  hosts: ubuntu_2404
+  become: true
+  gather_facts: true
+
+  vars:
+    cis_benchmark_name: "CIS Ubuntu Linux 24.04 LTS"
+    cis_benchmark_version: "2.0.0"
+    cis_benchmark_os: "ubuntu"
+    cis_benchmark_release: "24.04"
+
+  roles:
+    - cis_ubuntu_2404
