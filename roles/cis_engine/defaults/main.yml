@@ -1,29 +1,25 @@
 ---
-# Execution scope
-# Valid values: item, subsection, section, all
+# Execution scope:
+# item  = execute specific CIS control IDs
+# group = execute all controls under a CIS heading ID
+# all   = execute every control in the benchmark
 
-cis_run_scope: ""
+cis_run_scope: "all"
 
-# Individual CIS item IDs
+# Used when cis_run_scope = item
 cis_items: []
 
-# Section number
-cis_section: ""
+# Used when cis_run_scope = group
+# Accepts any hierarchy level, e.g. 1, 1.1, 1.1.2, 1.1.2.1
+cis_target_id: ""
 
-# Subsection number
-cis_subsection: ""
-
-# Remediation mode
-# false = Audit only
-# true  = Audit + Remediation
-
+# false = assessment only
+# true  = assessment + remediation + reassessment
 cis_remediate: false
 
-# Excluded CIS item IDs
+# CIS control IDs to exclude from execution
 cis_exceptions: []
 
-# Selected CIS controls
+# Internal execution variables
 cis_selected_controls: []
-
-# Execution results
 cis_results: []

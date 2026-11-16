@@ -2,51 +2,26 @@
 - name: Validate CIS execution scope
   ansible.builtin.assert:
     that:
-      - cis_run_scope in ['item', 'subsection', 'section', 'all']
+      - cis_run_scope in ['item', 'group', 'all']
     fail_msg: >-
-      Invalid cis_run_scope.
-      Allowed values: item, subsection, section, all.
+      Invalid cis_run_scope. Supported values are item, group, and all.
 
-- name: Validate individual CIS item selection
+- name: Validate item selection input
   ansible.builtin.assert:
     that:
-      - cis_items is sequence
-      - cis_items is not string
       - cis_items | length > 0
-    fail_msg: >-
-      When cis_run_scope is item,
-      cis_items must contain at least one CIS item ID.
+    fail_msg: "cis_items must contain at least one control ID when scope is item."
   when: cis_run_scope == 'item'
 
-- name: Validate section selection
+- name: Validate group selection input
   ansible.builtin.assert:
     that:
-      - cis_section | string | length > 0
-    fail_msg: "cis_section is required for section execution."
-  when: cis_run_scope == 'section'
+      - cis_target_id | length > 0
+    fail_msg: "cis_target_id is required when scope is group."
+  when: cis_run_scope == 'group'
 
-- name: Validate subsection selection
+- name: Validate remediation variable
   ansible.builtin.assert:
     that:
-      - cis_subsection | string | length > 0
-    fail_msg: "cis_subsection is required for subsection execution."
-  when: cis_run_scope == 'subsection'
-
-- name: Validate CIS catalog
-  ansible.builtin.assert:
-    that:
-      - cis_catalog is defined
-      - cis_catalog.controls is defined
-      - cis_catalog.controls is sequence
-      - cis_catalog.controls is not string
-      - cis_catalog.controls | length > 0
-    fail_msg: >-
-      CIS catalog is missing or empty.
-      Check the benchmark catalog.yml file.
-
-- name: Validate CIS exception list
-  ansible.builtin.assert:
-    that:
-      - cis_exceptions is sequence
-      - cis_exceptions is not string
-    fail_msg: "cis_exceptions must be a list."
+      - cis_remediate | bool in [true, false]
+    fail_msg: "cis_remediate must be a boolean."

@@ -1,0 +1,76 @@
+---
+- name: Get all CIS control IDs from catalog
+  ansible.builtin.set_fact:
+    cis_catalog_control_ids: >-
+      {{ cis_catalog.controls | map(attribute='id') | list }}
+
+- name: Validate requested control IDs
+  ansible.builtin.assert:
+    that:
+      - cis_items | difference(cis_catalog_control_ids) | length == 0
+    fail_msg: >-
+      Unknown CIS control IDs:
+      {{ cis_items | difference(cis_catalog_control_ids) | join(', ') }}
+  when: cis_run_scope == 'item'
+
+- name: Validate exception IDs
+  ansible.builtin.assert:
+    that:
+      - cis_exceptions | difference(cis_catalog_control_ids) | length == 0
+    fail_msg: >-
+      Unknown exception control IDs:
+      {{ cis_exceptions | difference(cis_catalog_control_ids) | join(', ') }}
+  when: cis_exceptions | length > 0
+
+- name: Validate requested group ID
+  ansible.builtin.assert:
+    that:
+      - >-
+        cis_target_id in
+        (cis_catalog.controls | map(attribute='path_ids') | flatten | unique | list)
+    fail_msg: >-
+      Group ID {{ cis_target_id }} does not exist in this benchmark catalog.
+  when: cis_run_scope == 'group'
+
+- name: Select individual CIS controls
+  ansible.builtin.set_fact:
+    cis_selected_controls: "{{ cis_catalog.controls | selectattr('id', 'in', cis_items) | list }}"
+  when: cis_run_scope == 'item'
+
+- name: Select all controls under requested hierarchy
+  ansible.builtin.set_fact:
+    cis_selected_controls: >-
+      {{ cis_catalog.controls
+         | selectattr('path_ids', 'contains', cis_target_id)
+         | list }}
+  when: cis_run_scope == 'group'
+
+- name: Select all benchmark controls
+  ansible.builtin.set_fact:
+    cis_selected_controls: "{{ cis_catalog.controls }}"
+  when: cis_run_scope == 'all'
+
+- name: Exclude exception controls
+  ansible.builtin.set_fact:
+    cis_selected_controls: >-
+      {{ cis_selected_controls
+         | rejectattr('id', 'in', cis_exceptions)
+         | list }}
+
+- name: Require at least one selected control
+  ansible.builtin.assert:
+    that:
+      - cis_selected_controls | length > 0
+    fail_msg: >-
+      No CIS controls were selected. Check the execution scope,
+      target ID, requested item IDs, and exceptions.
+
+- name: Display selected controls
+  ansible.builtin.debug:
+    msg:
+      - "Selected benchmark: {{ cis_benchmark_name }}"
+      - "Benchmark version: {{ cis_benchmark_version }}"
+      - "Execution scope: {{ cis_run_scope }}"
+      - "Target group: {{ cis_target_id | default('N/A') }}"
+      - "Selected control count: {{ cis_selected_controls | length }}"
+      - "Excluded controls: {{ cis_exceptions | join(', ') if cis_exceptions | length > 0 else 'None' }}"

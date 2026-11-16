@@ -1,0 +1,7 @@
+---
+- name: Execute selected CIS controls
+  ansible.builtin.include_tasks: execute_one_control.yml
+  loop: "{{ cis_selected_controls }}"
+  loop_control:
+    loop_var: cis_control
+    label: "{{ cis_control.id }} - {{ cis_control.description }}"

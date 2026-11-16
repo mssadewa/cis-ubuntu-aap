@@ -1,0 +1,12 @@
+---
+- name: Display current CIS control
+  ansible.builtin.debug:
+    msg:
+      - "Control ID: {{ cis_control.id }}"
+      - "Description: {{ cis_control.description }}"
+      - "Assessment method: {{ cis_control.assessment_method }}"
+      - "Remediation supported: {{ cis_control.remediation_supported }}"
+
+- name: Execute CIS control implementation
+  ansible.builtin.include_tasks:
+    file: "{{ cis_benchmark_role_path }}/tasks/{{ cis_control.file }}"

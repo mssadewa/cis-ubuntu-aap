@@ -10,3 +10,9 @@
 
 - name: Validate CIS execution request
   ansible.builtin.include_tasks: validate.yml
+
+- name: Select CIS controls dynamically
+  ansible.builtin.include_tasks: select_controls.yml
+
+- name: Execute selected CIS controls
+  ansible.builtin.include_tasks: execute_controls.yml
