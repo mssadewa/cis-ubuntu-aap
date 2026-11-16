@@ -57,6 +57,10 @@
          | rejectattr('id', 'in', cis_exceptions)
          | list }}
 
+- name: Display selected CIS control IDs
+  ansible.builtin.debug:
+    msg: "{{ cis_selected_controls | map(attribute='id') | list }}"
+
 - name: Require at least one selected control
   ansible.builtin.assert:
     that:
