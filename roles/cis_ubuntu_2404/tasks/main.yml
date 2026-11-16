@@ -1,0 +1,21 @@
+---
+- name: Validate Ubuntu 24.04 target
+  ansible.builtin.assert:
+    that:
+      - ansible_distribution == "Ubuntu"
+      - ansible_distribution_version is version("24.04", ">=")
+      - ansible_distribution_version is version("25.04", "<")
+    fail_msg: >-
+      This role is exclusively for Ubuntu 24.04.
+      Detected {{ ansible_distribution }}
+      {{ ansible_distribution_version }}.
+
+- name: Initialize Ubuntu 24.04 benchmark metadata
+  ansible.builtin.set_fact:
+    cis_benchmark_name: "CIS Ubuntu Linux 24.04 LTS"
+    cis_benchmark_version: "2.0.0"
+    cis_benchmark_release: "24.04"
+
+- name: Execute shared CIS engine
+  ansible.builtin.include_role:
+    name: cis_engine
