@@ -7,46 +7,41 @@ benchmark:
 controls:
   - id: "1.1.1.1"
     description: "Ensure cramfs kernel module is not available"
-    type: "control"
+    assessment_method: "automated"
+    remediation_supported: true
     path_ids:
       - "1"
       - "1.1"
       - "1.1.1"
-    file: "1_initial_setup/1_1_filesystem/1_1_1_configure_filesystem_kernel_modules/1_1_1_1_ensure_cramfs_is_not_available.yml"
-    automated: true
-    remediation_supported: true
+    file: "1_initial_setup/1_1_filesystem/1_1_1_configure_filesystem_kernel_modules/1_1_1_1_ensure_cramfs_kernel_module_is_not_available.yml"
 
   - id: "1.1.1.2"
     description: "Ensure freevxfs kernel module is not available"
-    type: "control"
+    assessment_method: "automated"
+    remediation_supported: true
     path_ids:
       - "1"
       - "1.1"
       - "1.1.1"
-    file: "1_initial_setup/1_1_filesystem/1_1_1_configure_filesystem_kernel_modules/1_1_1_2_ensure_freevxfs_is_not_available.yml"
-    automated: true
+    file: "1_initial_setup/1_1_filesystem/1_1_1_configure_filesystem_kernel_modules/1_1_1_2_ensure_freevxfs_kernel_module_is_not_available.yml"
+
+  - id: "1.1.1.5"
+    description: "Ensure jffs2 kernel module is not available"
+    assessment_method: "automated"
     remediation_supported: true
+    path_ids:
+      - "1"
+      - "1.1"
+      - "1.1.1"
+    file: "1_initial_setup/1_1_filesystem/1_1_1_configure_filesystem_kernel_modules/1_1_1_5_ensure_jffs2_kernel_module_is_not_available.yml"
 
   - id: "1.1.2.1.1"
     description: "Ensure /tmp is tmpfs or a separate partition"
-    type: "control"
+    assessment_method: "automated"
+    remediation_supported: true
     path_ids:
       - "1"
       - "1.1"
       - "1.1.2"
       - "1.1.2.1"
     file: "1_initial_setup/1_1_filesystem/1_1_2_configure_filesystem_partitions/1_1_2_1_configure_tmp/1_1_2_1_1_ensure_tmp_is_tmpfs_or_separate_partition.yml"
-    automated: true
-    remediation_supported: true
-
-  - id: "1.1.2.1.2"
-    description: "Ensure nodev option set on /tmp partition"
-    type: "control"
-    path_ids:
-      - "1"
-      - "1.1"
-      - "1.1.2"
-      - "1.1.2.1"
-    file: "1_initial_setup/1_1_filesystem/1_1_2_configure_filesystem_partitions/1_1_2_1_configure_tmp/1_1_2_1_2_ensure_nodev_on_tmp.yml"
-    automated: true
-    remediation_supported: true
