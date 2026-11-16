@@ -14,9 +14,23 @@
 - name: Select CIS controls dynamically
   ansible.builtin.include_tasks: select_controls.yml
 
+- name: Initialize CIS result collection
+  ansible.builtin.set_fact:
+    cis_results: []
+
 # - name: Execute selected CIS controls
 #   ansible.builtin.include_tasks: execute_controls.yml
 
 - name: Execute selected CIS controls
   ansible.builtin.include_tasks: execute_controls.yml
+  when: not (cis_selection_only | bool)
+
+- name: Display host CIS assessment summary
+  ansible.builtin.debug:
+    msg:
+      - "Host: {{ inventory_hostname }}"
+      - "Controls assessed: {{ cis_results | length }}"
+      - "PASS: {{ cis_results | selectattr('status', 'equalto', 'PASS') | list | length }}"
+      - "FAIL: {{ cis_results | selectattr('status', 'equalto', 'FAIL') | list | length }}"
+      - "Remediation enabled: {{ cis_remediate | bool }}"
   when: not (cis_selection_only | bool)

@@ -142,29 +142,60 @@
 
 # RESULT COLLECTION
 
-- name: "1.1.2.1.1 | Record assessment result"
+- name: "1.1.2.1.1 | Build standardized result"
   ansible.builtin.set_fact:
-    cis_results: >-
-      {{
-        cis_results + [{
-          'id': '1.1.2.1.1',
-          'description': 'Ensure /tmp is tmpfs or a separate partition',
-          'status': (
-            'PASS'
-            if (
-              cis_tmp_final_compliant
-              | default(cis_tmp_is_compliant)
-              | bool
+    cis_control_result:
+      id: "{{ cis_control.id }}"
+      description: "{{ cis_control.description }}"
+      host: "{{ inventory_hostname }}"
+
+      benchmark: "{{ cis_benchmark_name }}"
+      benchmark_version: "{{ cis_benchmark_version }}"
+      benchmark_release: "{{ cis_benchmark_release }}"
+
+      assessment_method: "{{ cis_control.assessment_method }}"
+      remediation_supported: "{{ cis_control.remediation_supported | bool }}"
+
+      initial_status: "{{ 'PASS' if cis_tmp_is_compliant else 'FAIL' }}"
+
+      status: >-
+        {{
+          'PASS'
+          if (
+            cis_tmp_final_compliant
+            | default(cis_tmp_is_compliant)
+            | bool
+          )
+          else 'FAIL'
+        }}
+
+      remediation_enabled: "{{ cis_remediate | bool }}"
+
+      remediation_attempted: >-
+        {{
+          cis_remediate | bool
+          and not cis_tmp_is_compliant
+        }}
+
+      remediation_status: >-
+        {{
+          'NOT_ENABLED'
+          if not (cis_remediate | bool)
+          else (
+            'NOT_REQUIRED'
+            if cis_tmp_is_compliant
+            else (
+              'SUCCESS'
+              if (cis_tmp_final_compliant | default(false) | bool)
+              else 'FAILED'
             )
-            else 'FAIL'
-          ),
-          'remediation_enabled': cis_remediate | bool
-        }]
-      }}
+          )
+        }}
+
+- name: "1.1.2.1.1 | Append result to CIS results"
+  ansible.builtin.set_fact:
+    cis_results: "{{ cis_results + [cis_control_result] }}"
 
 - name: "1.1.2.1.1 | Display final result"
   ansible.builtin.debug:
-    msg:
-      - "Control ID: 1.1.2.1.1"
-      - "Final status: {{ cis_results[-1].status }}"
-      - "Remediation enabled: {{ cis_remediate | bool }}"
+    var: cis_control_result
