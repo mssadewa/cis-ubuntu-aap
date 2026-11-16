@@ -1,0 +1,12 @@
+---
+- name: Display CIS benchmark information
+  ansible.builtin.debug:
+    msg:
+      - "Benchmark: {{ cis_benchmark_name }}"
+      - "Version: {{ cis_benchmark_version }}"
+      - "Ubuntu Release: {{ cis_benchmark_release }}"
+      - "Execution Scope: {{ cis_run_scope }}"
+      - "Remediation Enabled: {{ cis_remediate | bool }}"
+
+- name: Validate CIS execution request
+  ansible.builtin.include_tasks: validate.yml

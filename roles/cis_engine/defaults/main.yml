@@ -1,0 +1,29 @@
+---
+# Execution scope
+# Valid values: item, subsection, section, all
+
+cis_run_scope: ""
+
+# Individual CIS item IDs
+cis_items: []
+
+# Section number
+cis_section: ""
+
+# Subsection number
+cis_subsection: ""
+
+# Remediation mode
+# false = Audit only
+# true  = Audit + Remediation
+
+cis_remediate: false
+
+# Excluded CIS item IDs
+cis_exceptions: []
+
+# Selected CIS controls
+cis_selected_controls: []
+
+# Execution results
+cis_results: []

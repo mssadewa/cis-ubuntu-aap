@@ -1,0 +1,52 @@
+---
+- name: Validate CIS execution scope
+  ansible.builtin.assert:
+    that:
+      - cis_run_scope in ['item', 'subsection', 'section', 'all']
+    fail_msg: >-
+      Invalid cis_run_scope.
+      Allowed values: item, subsection, section, all.
+
+- name: Validate individual CIS item selection
+  ansible.builtin.assert:
+    that:
+      - cis_items is sequence
+      - cis_items is not string
+      - cis_items | length > 0
+    fail_msg: >-
+      When cis_run_scope is item,
+      cis_items must contain at least one CIS item ID.
+  when: cis_run_scope == 'item'
+
+- name: Validate section selection
+  ansible.builtin.assert:
+    that:
+      - cis_section | string | length > 0
+    fail_msg: "cis_section is required for section execution."
+  when: cis_run_scope == 'section'
+
+- name: Validate subsection selection
+  ansible.builtin.assert:
+    that:
+      - cis_subsection | string | length > 0
+    fail_msg: "cis_subsection is required for subsection execution."
+  when: cis_run_scope == 'subsection'
+
+- name: Validate CIS catalog
+  ansible.builtin.assert:
+    that:
+      - cis_catalog is defined
+      - cis_catalog.controls is defined
+      - cis_catalog.controls is sequence
+      - cis_catalog.controls is not string
+      - cis_catalog.controls | length > 0
+    fail_msg: >-
+      CIS catalog is missing or empty.
+      Check the benchmark catalog.yml file.
+
+- name: Validate CIS exception list
+  ansible.builtin.assert:
+    that:
+      - cis_exceptions is sequence
+      - cis_exceptions is not string
+    fail_msg: "cis_exceptions must be a list."
