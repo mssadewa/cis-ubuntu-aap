@@ -151,7 +151,7 @@
 
       benchmark: "{{ cis_benchmark_name }}"
       benchmark_version: "{{ cis_benchmark_version }}"
-      benchmark_release: "{{ cis_benchmark_release | to_json }}"
+      benchmark_release: "{{ cis_benchmark_release }}"
 
       assessment_method: "{{ cis_control.assessment_method }}"
       remediation_supported: "{{ cis_control.remediation_supported | bool }}"
@@ -191,6 +191,16 @@
             )
           )
         }}
+
+- name: "1.1.2.1.1 | Preserve benchmark release string"
+  ansible.builtin.set_fact:
+    cis_control_result: >-
+      {{
+        cis_control_result
+        | combine({
+            'benchmark_release': cis_benchmark_release
+          })
+      }}
 
 - name: "1.1.2.1.1 | Debug benchmark release type in result"
   ansible.builtin.debug:
