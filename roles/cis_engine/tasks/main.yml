@@ -77,32 +77,10 @@
           remediation_enabled: "{{ cis_remediate | bool }}"
           exceptions: "{{ cis_exceptions }}"
         summary:
-          hosts_assessed: >-
-            {{
-              cis_all_results
-              | map(attribute='host')
-              | unique
-              | list
-              | length
-              | int
-            }}
+          hosts_assessed: "{{ (cis_all_results | map(attribute='host') | unique | list | length) | int }}"
           controls_assessed: "{{ cis_all_results | length | int }}"
-          pass: >-
-            {{
-              cis_all_results
-              | selectattr('status', 'equalto', 'PASS')
-              | list
-              | length
-              | int
-            }}
-          fail: >-
-            {{
-              cis_all_results
-              | selectattr('status', 'equalto', 'FAIL')
-              | list
-              | length
-              | int
-            }}
+          pass: "{{ (cis_all_results | selectattr('status', 'equalto', 'PASS') | list | length) | int }}"
+          fail: "{{ (cis_all_results | selectattr('status', 'equalto', 'FAIL') | list | length) | int }}"
         results: "{{ cis_all_results }}"
     per_host: false
     aggregate: false
