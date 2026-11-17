@@ -18,6 +18,13 @@
   ansible.builtin.set_fact:
     cis_results: []
 
+- name: Verify benchmark release data type
+  ansible.builtin.debug:
+    msg:
+      - "Release: {{ cis_benchmark_release }}"
+      - "Type: {{ cis_benchmark_release | type_debug }}"
+      - "Is string: {{ cis_benchmark_release is string }}"
+
 # - name: Execute selected CIS controls
 #   ansible.builtin.include_tasks: execute_controls.yml
 
