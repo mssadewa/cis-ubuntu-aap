@@ -10,17 +10,17 @@
       Detected {{ ansible_distribution }}
       {{ ansible_distribution_version }}.
 
+- name: Load Ubuntu 22.04 CIS catalog
+  ansible.builtin.include_vars:
+    file: "{{ role_path }}/vars/catalog.yml"
+    name: cis_catalog
+
 - name: Debug CIS catalog release data type
   ansible.builtin.debug:
     msg:
       - "Catalog release: {{ cis_catalog.benchmark.release }}"
       - "Catalog release type: {{ cis_catalog.benchmark.release | type_debug }}"
       - "Is catalog release a string: {{ cis_catalog.benchmark.release is string }}"
-
-- name: Load Ubuntu 22.04 CIS catalog
-  ansible.builtin.include_vars:
-    file: "{{ role_path }}/vars/catalog.yml"
-    name: cis_catalog
 
 - name: Validate benchmark catalog version
   ansible.builtin.assert:
