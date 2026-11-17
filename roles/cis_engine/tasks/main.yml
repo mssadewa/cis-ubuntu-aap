@@ -118,6 +118,17 @@
   run_once: true
   when: not (cis_selection_only | bool)
 
+- name: Test CIS benchmark release string serialization
+  ansible.builtin.set_fact:
+    cis_release_string_test: "{{ cis_benchmark_release | string | to_json }}"
+
+- name: Display CIS benchmark release data type
+  ansible.builtin.debug:
+    msg:
+      - "Original release: {{ cis_benchmark_release }}"
+      - "Serialized release: {{ cis_release_string_test }}"
+      - "Serialized release type: {{ cis_release_string_test | type_debug }}"
+
 - name: Publish consolidated CIS report to AWX artifacts
   ansible.builtin.set_stats:
     data:
