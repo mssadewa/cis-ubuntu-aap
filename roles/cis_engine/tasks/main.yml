@@ -66,10 +66,45 @@
 - name: Prepare CIS report summary
   ansible.builtin.set_fact:
     cis_report_summary:
-      hosts_assessed: "{{ cis_all_results | map(attribute='host') | unique | list | length | int }}"
-      controls_assessed: "{{ cis_all_results | length | int }}"
-      pass: "{{ cis_all_results | selectattr('status', 'equalto', 'PASS') | list | length | int }}"
-      fail: "{{ cis_all_results | selectattr('status', 'equalto', 'FAIL') | list | length | int }}"
+      hosts_assessed: >-
+        {{
+          (
+            cis_all_results
+            | map(attribute='host')
+            | unique
+            | list
+            | length
+            | string
+          ) | from_yaml
+        }}
+      controls_assessed: >-
+        {{
+          (
+            cis_all_results
+            | length
+            | string
+          ) | from_yaml
+        }}
+      pass: >-
+        {{
+          (
+            cis_all_results
+            | selectattr('status', 'equalto', 'PASS')
+            | list
+            | length
+            | string
+          ) | from_yaml
+        }}
+      fail: >-
+        {{
+          (
+            cis_all_results
+            | selectattr('status', 'equalto', 'FAIL')
+            | list
+            | length
+            | string
+          ) | from_yaml
+        }}
   run_once: true
   when: not (cis_selection_only | bool)
 
