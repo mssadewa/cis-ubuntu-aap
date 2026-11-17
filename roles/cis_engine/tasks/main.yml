@@ -63,6 +63,26 @@
   run_once: true
   when: not (cis_selection_only | bool)
 
+- name: Prepare CIS report summary
+  ansible.builtin.set_fact:
+    cis_report_summary:
+      hosts_assessed: "{{ cis_all_results | map(attribute='host') | unique | list | length | int }}"
+      controls_assessed: "{{ cis_all_results | length | int }}"
+      pass: "{{ cis_all_results | selectattr('status', 'equalto', 'PASS') | list | length | int }}"
+      fail: "{{ cis_all_results | selectattr('status', 'equalto', 'FAIL') | list | length | int }}"
+  run_once: true
+  when: not (cis_selection_only | bool)
+
+- name: Debug CIS report summary data types
+  ansible.builtin.debug:
+    msg:
+      - "hosts_assessed={{ cis_report_summary.hosts_assessed }} ({{ cis_report_summary.hosts_assessed | type_debug }})"
+      - "controls_assessed={{ cis_report_summary.controls_assessed }} ({{ cis_report_summary.controls_assessed | type_debug }})"
+      - "pass={{ cis_report_summary.pass }} ({{ cis_report_summary.pass | type_debug }})"
+      - "fail={{ cis_report_summary.fail }} ({{ cis_report_summary.fail | type_debug }})"
+  run_once: true
+  when: not (cis_selection_only | bool)
+
 - name: Publish consolidated CIS report to AWX artifacts
   ansible.builtin.set_stats:
     data:
@@ -76,11 +96,7 @@
           target_id: "{{ cis_target_id | default('') }}"
           remediation_enabled: "{{ cis_remediate | bool }}"
           exceptions: "{{ cis_exceptions }}"
-        summary:
-          hosts_assessed: "{{ (cis_all_results | map(attribute='host') | unique | list | length) | int }}"
-          controls_assessed: "{{ cis_all_results | length | int }}"
-          pass: "{{ (cis_all_results | selectattr('status', 'equalto', 'PASS') | list | length) | int }}"
-          fail: "{{ (cis_all_results | selectattr('status', 'equalto', 'FAIL') | list | length) | int }}"
+        summary: "{{ cis_report_summary }}"
         results: "{{ cis_all_results }}"
     per_host: false
     aggregate: false
