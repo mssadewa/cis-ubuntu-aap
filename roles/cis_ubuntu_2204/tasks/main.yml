@@ -33,7 +33,7 @@
   ansible.builtin.set_fact:
     cis_benchmark_name: "{{ cis_catalog.benchmark.name }}"
     cis_benchmark_version: "{{ cis_catalog.benchmark.version }}"
-    cis_benchmark_release: "{{ ('release-' ~ cis_catalog.benchmark.release) | regex_replace('^release-', '') }}"
+    cis_benchmark_release: "22.04"
     cis_benchmark_role_path: "{{ role_path }}"
 
 - name: Execute shared CIS engine
