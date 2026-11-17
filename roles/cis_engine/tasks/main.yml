@@ -62,3 +62,34 @@
       - "========================================"
   run_once: true
   when: not (cis_selection_only | bool)
+
+- name: Publish consolidated CIS report to AWX artifacts
+  ansible.builtin.set_stats:
+    data:
+      cis_report:
+        benchmark:
+          name: "{{ cis_benchmark_name }}"
+          version: "{{ cis_benchmark_version }}"
+          release: "{{ cis_benchmark_release }}"
+        execution:
+          scope: "{{ cis_run_scope }}"
+          target_id: "{{ cis_target_id | default('') }}"
+          remediation_enabled: "{{ cis_remediate | bool }}"
+          exceptions: "{{ cis_exceptions }}"
+        summary:
+          hosts_assessed: >-
+            {{ cis_all_results | map(attribute='host') | unique | list | length }}
+          controls_assessed: "{{ cis_all_results | length }}"
+          pass: >-
+            {{ cis_all_results
+               | selectattr('status', 'equalto', 'PASS')
+               | list | length }}
+          fail: >-
+            {{ cis_all_results
+               | selectattr('status', 'equalto', 'FAIL')
+               | list | length }}
+        results: "{{ cis_all_results }}"
+    per_host: false
+    aggregate: false
+  run_once: true
+  when: not (cis_selection_only | bool)
