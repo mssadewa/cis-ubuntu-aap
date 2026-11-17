@@ -34,3 +34,31 @@
       - "FAIL: {{ cis_results | selectattr('status', 'equalto', 'FAIL') | list | length }}"
       - "Remediation enabled: {{ cis_remediate | bool }}"
   when: not (cis_selection_only | bool)
+
+- name: Build consolidated CIS results from all hosts
+  ansible.builtin.set_fact:
+    cis_all_results: >-
+      {{
+        ansible_play_hosts_all
+        | map('extract', hostvars, 'cis_results')
+        | flatten
+      }}
+  run_once: true
+  when: not (cis_selection_only | bool)
+
+- name: Display consolidated CIS assessment report
+  ansible.builtin.debug:
+    msg:
+      - "========================================"
+      - "CONSOLIDATED CIS ASSESSMENT REPORT"
+      - "========================================"
+      - "Benchmark: {{ cis_benchmark_name }}"
+      - "Version: {{ cis_benchmark_version }}"
+      - "Ubuntu Release: {{ cis_benchmark_release }}"
+      - "Hosts assessed: {{ cis_all_results | map(attribute='host') | unique | list | length }}"
+      - "Total controls assessed: {{ cis_all_results | length }}"
+      - "PASS: {{ cis_all_results | selectattr('status', 'equalto', 'PASS') | list | length }}"
+      - "FAIL: {{ cis_all_results | selectattr('status', 'equalto', 'FAIL') | list | length }}"
+      - "========================================"
+  run_once: true
+  when: not (cis_selection_only | bool)
